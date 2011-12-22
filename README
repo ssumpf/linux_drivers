@@ -1,4 +1,36 @@
-Genode OS Framework - linux_drivers
+This repository contains the Device Driver Environment for the "donator OS"
+Linux 2.6.20. DDE Linux 2.6 is based on code from the TUD:OS project. The
+original code is available at the official website.
 
-This is just the initial version without any code yet. We're on the
-way to migrate the current released version into Git.
+:TUD:OS website: [http://www.tudos.org/]
+
+Currently available drivers are:
+
+
+Network device drivers
+======================
+
+:Library: dde_linux26_net.mk
+:API: dde_linux26/net.h
+:Example: test-dde_linux26_net
+
+
+USB drivers
+===========
+
+:Monolithic USB HID driver library:     dde_linux26_usbhid.mk
+:Monolithic USB storage driver library: dde_linux26_usbstorage.mk
+:Monolithic USB service:
+  * Provides Input and Block for HID resp. mass storage
+  * Uses dde_linux26_usbhid.mk and dde_linux26_usbstorage.mk
+
+
+DDE References
+==============
+
+* [http://os.inf.tu-dresden.de/papers_ps/vogt-beleg.pdf]
+* [http://os.inf.tu-dresden.de/papers_ps/friebel-diplom.pdf]
+* [http://os.inf.tu-dresden.de/papers_ps/menzer-diplom.pdf]
+* [http://os.inf.tu-dresden.de/papers_ps/menzer-beleg.pdf]
+* [http://os.inf.tu-dresden.de/papers_ps/griessbach-diplom.pdf]
+* [http://os.inf.tu-dresden.de/papers_ps/helmuth-diplom.pdf]

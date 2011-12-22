@@ -1,0 +1,4 @@
+This directory contains GPU driver code ported from from Linux-2.6.34.
+The file in the 'contrib/' subdirectory are unmodified source codes taken
+from the Linux kernel. The 'i915/' subdirectory contains the glue between
+the 'contrib' code and Genode.
