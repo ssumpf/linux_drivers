@@ -95,17 +95,17 @@ typedef struct {
 
 #else
 
-#include <dde_kit/lock.h>
+#include <dde_kit/spin_lock.h>
 
 typedef struct {
-	struct dde_kit_lock *dde_kit_lock;
-	char                 need_init;
+	dde_kit_spin_lock dde_kit_spin_lock;
+	char              need_init;
 } spinlock_t;
 
 typedef spinlock_t rwlock_t;
 
-#define SPIN_LOCK_UNLOCKED  (spinlock_t) { .dde_kit_lock = NULL, .need_init = 1 }
-#define RW_LOCK_UNLOCKED  (spinlock_t) { .dde_kit_lock = NULL, .need_init = 1 }
+#define SPIN_LOCK_UNLOCKED (spinlock_t) { .dde_kit_spin_lock = DDE_KIT_SPIN_LOCK_UNLOCKED, .need_init = 1 }
+#define RW_LOCK_UNLOCKED   (spinlock_t) { .dde_kit_spin_lock = DDE_KIT_SPIN_LOCK_UNLOCKED, .need_init = 1 }
 
 #define __SPIN_LOCK_UNLOCKED(name)   SPIN_LOCK_UNLOCKED
 #define __RW_LOCK_UNLOCKED(name)     RW_LOCK_UNLOCKED

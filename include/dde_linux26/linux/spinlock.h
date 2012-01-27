@@ -292,7 +292,7 @@ extern int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock);
 
 #define spin_lock_init(l) \
 	do { \
-		dde_kit_lock_init(&(l)->dde_kit_lock); \
+		dde_kit_spin_lock_init(&(l)->dde_kit_spin_lock); \
 		(l)->need_init = 0; \
 	} while (0);
 
@@ -307,7 +307,7 @@ extern int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock);
 	do { \
 		COND_INIT_LOCK(lock); \
 		preempt_disable(); \
-		dde_kit_lock_lock((lock)->dde_kit_lock); \
+		dde_kit_spin_lock_lock(&(lock)->dde_kit_spin_lock); \
 	} while (0)
 
 #define read_lock(lock) spin_lock(lock)
@@ -322,7 +322,7 @@ extern int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock);
 #define spin_unlock(lock) \
 	do { \
 		COND_INIT_LOCK(lock); \
-		dde_kit_lock_unlock((lock)->dde_kit_lock); \
+		dde_kit_spin_lock_unlock(&(lock)->dde_kit_spin_lock); \
 		preempt_enable(); \
 	} while (0)
 
@@ -357,7 +357,7 @@ extern int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock);
 static int __lockfunc spin_trylock(spinlock_t *lock)
 {
 	COND_INIT_LOCK(lock);
-	return dde_kit_lock_try_lock(lock->dde_kit_lock) == 0;
+	return dde_kit_spin_lock_try_lock(&lock->dde_kit_spin_lock) == 0;
 }
 
 #define _raw_spin_unlock(l) spin_unlock(l)
@@ -371,9 +371,6 @@ static int __lockfunc spin_trylock(spinlock_t *lock)
 
 #define read_trylock(l) spin_trylock(l)
 #define write_trylock(l) read_trylock(l)
-
-#define spin_is_locked(x) \
-		(dde_kit_lock_owner((x)->dde_kit_lock) != -1)
 
 #define assert_spin_locked(x)   BUG_ON(!spin_is_locked(x))
 
