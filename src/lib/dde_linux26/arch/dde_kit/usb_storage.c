@@ -161,7 +161,10 @@ static int block_io(int usb_index, unsigned long block_nr, void *buffer, char op
 	init_completion(&compl);
 	cmnd->back = &compl;
 
-	usb_devices[usb_index].sdev->host->hostt->queuecommand(cmnd, scsi_done);
+	if (usb_devices[usb_index].sdev->host->hostt->queuecommand(cmnd, scsi_done)) {
+		kfree(cmnd);
+		return -EBLK_BUSY;
+	}
 	wait_for_completion(&compl);
 	kfree(cmnd);
 

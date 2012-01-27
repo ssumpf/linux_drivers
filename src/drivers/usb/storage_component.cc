@@ -5,12 +5,14 @@
  * \date    2009-10-12
  */
 
+#include <base/env.h>
 #include <base/printf.h>
 #include <base/rpc_server.h>
 #include <block_session/rpc_object.h>
 #include <os/ring_buffer.h>
 #include <root/component.h>
 #include <util/xml_node.h>
+#include <timer_session/connection.h>
 
 extern "C" {
 #include <dde_kit/lock.h>
@@ -50,6 +52,7 @@ namespace Block {
 
 					Session_component *_session;  /* corresponding session object */
 					int                _usb_index;
+					Timer::Connection  _timer;
 
 				public:
 
@@ -107,13 +110,24 @@ namespace Block {
 										break;
 									}
 
-									for (Genode::size_t i = 0; i < packet.block_count(); i++)
-										dde_linux26_block_read(_usb_index, packet.block_number() + i,
-										                       &dde_blocks[i * 512]);
+									for (Genode::size_t i = 0; i < packet.block_count(); i++) {
+										for (;;) {
+											int ret = dde_linux26_block_read(_usb_index, packet.block_number() + i,
+											                                 &dde_blocks[i * 512]);
+											/* block reading suceeded */
+											if (ret == 0)
+												break;
+
+											PWRN("dde_linux26_block_read returned error %d", ret);
+
+											if (ret == -EBLK_BUSY)
+												_timer.msleep(10);
+										}
+									}
 
 									/* copy block content to packet payload */
 									memcpy(tx_sink->packet_content(packet),
-										   dde_blocks, size);
+									       dde_blocks, size);
 
 									dde_linux26_block_free(dde_blocks);
 
@@ -240,7 +254,20 @@ namespace Block {
 					throw Root::Quota_exceeded();
 				}
 
+				/*
+				 * Block on barrier until the USB stack is initialized.
+				 */
 				dde_kit_lock_lock(plugin_lock);
+
+				/*
+				 * Prepare for a subsequenting session creation
+				 *
+				 * Even though only one open USB block session is supported at
+				 * a time, a client may open, close, and re-open sessions. To
+				 * let not only the first session creation succeed, we need to
+				 * clear the barrier.
+				 */
+				dde_kit_lock_unlock(plugin_lock);
 
 				return new (md_alloc())
 				       Session_component(env()->ram_session()->alloc(tx_buf_size),

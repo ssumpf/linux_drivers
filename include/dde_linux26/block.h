@@ -10,8 +10,9 @@ struct scsi_device;
 
 enum Block_errors {
 	EBLK_NOMEM = 1, //Not enough space
-	EBLK_NODEV = 2, //No such device 
+	EBLK_NODEV = 2, //No such device
 	EBLK_FAULT = 3, //Bad address
+	EBLK_BUSY  = 4, //Host busy
 };
 
 
